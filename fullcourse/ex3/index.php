@@ -17,9 +17,7 @@
 
     //arrays
     $array = [0, 1, -34, 0.99, 'A', true];
-    print_r($array);
-
-   
+    print_r($array);   
 
     function sum(int $x, int $y){
         return $x + $y;
