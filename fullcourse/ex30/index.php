@@ -1,8 +1,5 @@
 <?php 
-    spl_autoload_register(function($class){
-        $path = __DIR__ . '\\' . $class . '.php';
-        require_once $path;        
-    });
+    require_once '../vendor/autoload.php';
 
     $fields = [
         new \app\Text('textField'),
