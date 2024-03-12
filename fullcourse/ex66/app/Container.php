@@ -15,7 +15,7 @@ class Container implements ContainerInterface
         if ($this->has($id)) {
             $entry = $this->entries[$id];
             
-            if(is_callable($id)){
+            if(is_callable($entry)){
                 return $entry($this);
             }
 

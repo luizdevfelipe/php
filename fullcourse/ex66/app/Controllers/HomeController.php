@@ -8,13 +8,12 @@ use \App\View;
 use App\Services\InvoiceService;
 use App\Attributes\Get;
 use App\Attributes\Post;
-use Symfony\Component\Mailer\Mailer;
-use Symfony\Component\Mailer\Transport;
+use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 
 class HomeController
 {
-    public function __construct(private InvoiceService $invoice)
+    public function __construct(private InvoiceService $invoice, private MailerInterface $mailer)
     {        
     }
 
@@ -57,13 +56,10 @@ Htmlbody;
         ->from('support@exemple.com')
         ->to($email)
         ->subject('Welcome!')
+        ->attach('Hello World', 'welcome.txt')
         ->text($text)
-        ->html($html);
+        ->html($html);    
 
-        $dsn = 'smtp://mailhog:1025';        
-        $transport = Transport::fromDsn($dsn);
-
-        $mailer = new Mailer($transport);
-        $mailer->send($email);
+        $this->mailer->send($email);
     }
 }
