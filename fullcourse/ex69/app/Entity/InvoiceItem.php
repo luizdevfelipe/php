@@ -8,6 +8,7 @@ use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\Table;
 
 #[Entity()]
@@ -29,4 +30,32 @@ class InvoiceItem
 
     #[Column(name: 'unit_price', type: Types::DECIMAL, precision: 10, scale: 2)]
     private float $unityPrice;
+
+    #[ManyToOne(inversedBy: 'items')]
+    private Invoice $invoice;
+
+    public function setDescription($desc): InvoiceItem
+    {
+        $this->description = $desc;
+        return $this;
+    }
+
+    public function setQuantity($quantity): InvoiceItem
+    {
+        $this->quantity = $quantity;
+        return $this;
+    }
+
+    public function setUnitPrice($price): InvoiceItem
+    {
+        $this->unityPrice = $price;
+        return $this;
+    }
+
+    public function setInvoice($invoice): InvoiceItem
+    {
+        $this->invoice = $invoice;
+        return $this;
+    }
+
 }
