@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Enums\InvoiceStatus;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
@@ -28,7 +29,7 @@ class InvoiceItem
     #[Column()]
     private int $quantity;
 
-    #[Column(name: 'unit_price', type: Types::DECIMAL, precision: 10, scale: 2)]
+    #[Column(name: 'unity_price', type: Types::DECIMAL, precision: 10, scale: 2)]
     private float $unityPrice;
 
     #[ManyToOne(inversedBy: 'items')]
@@ -57,5 +58,4 @@ class InvoiceItem
         $this->invoice = $invoice;
         return $this;
     }
-
 }

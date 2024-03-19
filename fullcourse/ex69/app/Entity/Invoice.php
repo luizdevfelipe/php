@@ -28,9 +28,10 @@ class Invoice
     #[Column(name: 'user_id')]
     private int $userId;
 
+    #[Column()]
     private InvoiceStatus $status;
 
-    #[OneToMany(targetEntity: InvoiceItem::class, mappedBy: 'invoice')]
+    #[OneToMany(targetEntity: InvoiceItem::class, mappedBy: 'invoice', cascade: ['persist', 'remove'])]
     private Collection $items;
 
     public function __construct()
@@ -74,5 +75,10 @@ class Invoice
         $item->setInvoice($this);
         $this->items->add($item);
         return $this;
+    }
+
+    public function getItems(): Collection
+    {
+        return $this->items;
     }
 }
