@@ -1,26 +1,38 @@
-<?php 
+<?php
+
 declare(strict_types=1);
+
 namespace App\Controllers;
 
 use App\Attributes\Get;
 
-class CurlController 
+class CurlController
 {
     #[Get('/curl')]
     public function index()
     {
         $handle = curl_init();
 
-        $url = 'https://example.com';
+        $apiKey = $_ENV['EMAILABLE_API_KEY'];
+        $email = 'my@email.com';
+
+        $params = [
+            'email' => $email,
+            'api_key' => $apiKey
+        ];
+
+        $url = 'https://api.emailable.com/v1/verify?' . http_build_query($params);
         curl_setopt($handle, CURLOPT_URL, $url);
         curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
 
         $content = curl_exec($handle);
-        echo $content;
 
-        echo '<pre>';
-        print_r(curl_getinfo($handle));
-        echo '</pre>';
+        if ($content !== false) {
+            $data = json_decode($content, true);
+
+            echo '<pre>';
+            print_r($data);
+            echo '</pre>';
+        }
     }
 }
-?>
