@@ -9,7 +9,6 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
-use Psr\Http\Message\ResponseInterface;
 
 class EmailValidationService implements EmailValidationInterface
 {
@@ -21,26 +20,31 @@ class EmailValidationService implements EmailValidationInterface
 
     public function verify(string $email): array
     {
-        $stack = HandlerStack::create();        
+        try {
+            $stack = HandlerStack::create();
 
-        $stack->push($this->getRetryMiddleware(3));
+            $stack->push($this->getRetryMiddleware(3));
 
-        $client = new Client(
-            [
-                'base_uri' => $this->baseUrl,
-                'timeout' => 5,
-                'handler' => $stack
-            ]
-        );
+            $client = new Client(
+                [
+                    'base_uri' => $this->baseUrl,
+                    'timeout' => 5,
+                    'handler' => $stack
+                ]
+            );
 
-        $params = [
-            'email' => $email,
-            'api_key' => $this->apiKey
-        ];
+            $params = [
+                'email' => $email,
+                'api_key' => $this->apiKey
+            ];
 
-        $response = $client->get('', ['query' => $params]);
+            $response = $client->get('', ['query' => $params]);
 
-        return json_decode($response->getBody()->getContents(), true);
+            return json_decode($response->getBody()->getContents(), true);
+        } catch (\GuzzleHttp\Exception\ClientException) {
+            echo 'Unable to make the request ';
+            return [];
+        }
     }
 
     public function getRetryMiddleware(int $maxRetry): callable
@@ -48,20 +52,19 @@ class EmailValidationService implements EmailValidationInterface
         return Middleware::retry(
             function (
                 int $retries,
-                ResponseInterface $request,
-                ?ResponseInterface $response = null,
-                ?\RuntimeException $e = null
+                ?\GuzzleHttp\Psr7\Request $request = null,
+                ?\GuzzleHttp\Psr7\Response $response = null
             ) use ($maxRetry) {
                 if ($retries >= $maxRetry) {
                     return false;
                 }
 
-                if ($response && in_array($response->getStatusCode(), [249, 429, 503, 404])) {
-                    echo 'Retrying [' . $retries . '] Status: ' . $response->getStatusCode() . '</br>'; 
+                if ($response && in_array($response->getStatusCode(), [249, 429, 503, 404, 401])) {
+                    echo 'Retrying [' . $retries . '] Status: ' . $response->getReasonPhrase() . '</br>';
                     return true;
                 }
 
-                if($e instanceof ConnectException){                    
+                if ($response instanceof \GuzzleHttp\Exception\ClientException) {
                     echo 'Retrying [' . $retries . '] Connection Error </br>';
                     return true;
                 }

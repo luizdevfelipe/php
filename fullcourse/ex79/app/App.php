@@ -35,7 +35,7 @@ class App
         
         $this->container->bind(MailerInterface::class, fn () => new CustomMailer($this->config->mailer['dsn']));
 
-        $this->container->bind(EmailValidationInterface::class, fn() => new AbstractApiEmailValidationService($this->config->apiKeys['abstract_api_email_validation']));
+        $this->container->bind(EmailValidationInterface::class, fn() => new EmailValidationService($this->config->apiKeys['abstract_api_email_validation']));
 
         return $this;
     }
