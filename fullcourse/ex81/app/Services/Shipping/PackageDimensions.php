@@ -21,4 +21,11 @@ class PackageDimensions
     {
         return new self($this->width + $width, $this->height, $this->length);
     }
+
+    public function equalTo(PackageDimensions $other)
+    {
+        return $this->width === $other->width
+            && $this->height === $other->height
+            && $this->length === $other->length;
+    }
 }
