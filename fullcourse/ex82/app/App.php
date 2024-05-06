@@ -12,6 +12,7 @@ use Symfony\Component\Mailer\MailerInterface;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Events\Dispatcher;
 use Twig\Environment;
+use Twig\Extra\Intl\IntlExtension;
 use Twig\Loader\FilesystemLoader;
 
 class App
@@ -35,7 +36,10 @@ class App
         $loader = new FilesystemLoader(VIEWS_PATH);
         $twig = new Environment($loader, [
             'cache' => STORAGE_PATH . '/cache',
+            'auto_reload' => true
         ]);
+
+        $twig->addExtension(new IntlExtension());
 
         $this->container->bind(MailerInterface::class, fn () => new CustomMailer($this->config->mailer['dsn']));
 
