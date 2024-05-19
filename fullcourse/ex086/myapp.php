@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Commands\MyCommand;
 use Doctrine\Migrations\Configuration\EntityManager\ExistingEntityManager;
 use Doctrine\Migrations\Configuration\Migration\PhpFile;
 use Doctrine\Migrations\DependencyFactory;
@@ -26,7 +27,6 @@ use Symfony\Component\Console\Application;
 $app = require 'bootstrap.php';
 $container = $app->getContainer();
 
-// replace with mechanism to retrieve EntityManager in your app
 $entityManager = $container->get(EntityManager::class);
 
 $config = new PhpFile(CONFIG_PATH . '/migrations.php');
@@ -46,7 +46,8 @@ $commands = [
     new UpToDateCommand($dependencyFactory),
     new SyncMetadataCommand($dependencyFactory),
     new ListCommand($dependencyFactory),
-    new DiffCommand($dependencyFactory)
+    new DiffCommand($dependencyFactory),
+    new MyCommand()
 ];
 
 $application = new Application('App Name', '1.0');
