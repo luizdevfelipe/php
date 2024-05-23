@@ -10,11 +10,12 @@ use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\Table;
 
-#[Entity, Table('users')]
-class User
+#[Entity(), Table('categories')]
+class Category
 {
     #[Id, Column(options: ['unsigned' => true]), GeneratedValue()]
     private int $id;
@@ -22,39 +23,26 @@ class User
     #[Column()]
     private string $name;
 
-    #[Column()]
-    private string $email;
-
-    #[Column()]
-    private string $password;
-
     #[Column(name: 'created_at')]
     private \DateTime $createdAt;
 
     #[Column(name: 'updated_at')]
     private \DateTime $updatedAt;
 
-    #[OneToMany(mappedBy: 'user', targetEntity: Category::class)]
-    private Collection $categories;
+    #[ManyToOne(inversedBy: 'categories')]
+    private User $user;
 
-    #[OneToMany(mappedBy: 'user', targetEntity: Transaction::class)]
+    #[OneToMany(mappedBy: 'category', targetEntity: Transaction::class)]
     private Collection $transactions;
 
     public function __construct()
     {
-        $this->categories = new ArrayCollection();
         $this->transactions = new ArrayCollection();
     }
 
     public function getId(): int
     {
         return $this->id;
-    }
-
-    public function setId(int $id): self
-    {
-        $this->id = $id;
-        return $this;
     }
 
     public function getName(): string
@@ -65,28 +53,6 @@ class User
     public function setName(string $name): self
     {
         $this->name = $name;
-        return $this;
-    }
-
-    public function getEmail(): string
-    {
-        return $this->email;
-    }
-
-    public function setEmail(string $email): self
-    {
-        $this->email = $email;
-        return $this;
-    }
-
-    public function getPassword(): string
-    {
-        return $this->password;
-    }
-
-    public function setPassword(string $password): self
-    {
-        $this->password = $password;
         return $this;
     }
 
@@ -112,25 +78,26 @@ class User
         return $this;
     }
 
-    public function getCategories(): int
+    public function getUser(): User
     {
-        return $this->id;
+        return $this->user;
     }
 
-    public function addCategories(Category $categories): self
+    public function setUser(User $user): self
     {
-        $this->categories->add($categories);
+        $user->addCategory($this);
+        $this->user = $user;
         return $this;
     }
 
-    public function getTransactions(): int
+    public function getTransactions(): Collection
     {
-        return $this->id;
+        return $this->transactions;
     }
 
-    public function addTransaction(Category $transactions): self
+    public function addTransaction(Transaction $transaction): self
     {
-        $this->transactions->add($transactions);
+        $this->transactions->add($transaction);
         return $this;
     }
 }

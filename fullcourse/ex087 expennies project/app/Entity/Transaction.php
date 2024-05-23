@@ -117,7 +117,8 @@ class Transaction
 
     public function setUser(User $user): self
     {
-
+        $user->addTransaction($this);
+        $this->user = $user;
         return $this;
     }
 
@@ -128,6 +129,7 @@ class Transaction
 
     public function setCategory(Category $category): self
     {
+        $category->addTransaction($this);
         $this->category = $category;
         return $this;
     }
@@ -139,15 +141,12 @@ class Transaction
 
     public function addReceipt(Receipt $receipt): self
     {
-
-
+        $this->receipts->add($receipt);
         return $this;
     }
 
-    public function removeReceipt(Receipt $receipt): self
+    public function getReceipt(): Collection
     {
-
-
-        return $this;
+        return $this->receipts;
     }
 }
