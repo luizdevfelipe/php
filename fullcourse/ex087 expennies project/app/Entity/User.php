@@ -4,28 +4,34 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\GeneratedValue;
+use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
 use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\OneToMany;
+use Doctrine\ORM\Mapping\PrePersist;
+use Doctrine\ORM\Mapping\PreUpdate;
 use Doctrine\ORM\Mapping\Table;
 
 #[Entity, Table('users')]
+#[HasLifecycleCallbacks]
 class User
 {
-    #[Id, Column(options: ['unsigned' => true]), GeneratedValue()]
+    #[Id, Column(options: ['unsigned' => true]), GeneratedValue]
     private int $id;
 
-    #[Column()]
+    #[Column]
     private string $name;
 
-    #[Column()]
+    #[Column]
     private string $email;
 
-    #[Column()]
+    #[Column]
     private string $password;
 
     #[Column(name: 'created_at')]
@@ -42,7 +48,7 @@ class User
 
     public function __construct()
     {
-        $this->categories = new ArrayCollection();
+        $this->categories   = new ArrayCollection();
         $this->transactions = new ArrayCollection();
     }
 
@@ -51,10 +57,13 @@ class User
         return $this->id;
     }
 
-    public function setId(int $id): self
+    #[PrePersist, PreUpdate]
+    public function updateTimestamps(LifecycleEventArgs $args)
     {
-        $this->id = $id;
-        return $this;
+        if (!isset($this->createdAt)) {
+            $this->createdAt = new DateTime();
+        }
+        $this->updatedAt = new DateTime();
     }
 
     public function getName(): string
@@ -62,9 +71,10 @@ class User
         return $this->name;
     }
 
-    public function setName(string $name): self
+    public function setName(string $name): User
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -73,9 +83,10 @@ class User
         return $this->email;
     }
 
-    public function setEmail(string $email): self
+    public function setEmail(string $email): User
     {
         $this->email = $email;
+
         return $this;
     }
 
@@ -84,9 +95,10 @@ class User
         return $this->password;
     }
 
-    public function setPassword(string $password): self
+    public function setPassword(string $password): User
     {
         $this->password = $password;
+
         return $this;
     }
 
@@ -95,9 +107,10 @@ class User
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTime $createdAt): self
+    public function setCreatedAt(\DateTime $createdAt): User
     {
         $this->createdAt = $createdAt;
+
         return $this;
     }
 
@@ -106,31 +119,34 @@ class User
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(\DateTime $updatedAt): self
+    public function setUpdatedAt(\DateTime $updatedAt): User
     {
         $this->updatedAt = $updatedAt;
+
         return $this;
     }
 
-    public function getCategories(): int
+    public function getCategories(): ArrayCollection|Collection
     {
-        return $this->id;
+        return $this->categories;
     }
 
-    public function addCategory(Category $categories): self
+    public function addCategory(Category $category): User
     {
-        $this->categories->add($categories);
+        $this->categories->add($category);
+
         return $this;
     }
 
-    public function getTransactions(): int
+    public function getTransactions(): ArrayCollection|Collection
     {
-        return $this->id;
+        return $this->transactions;
     }
 
-    public function addTransaction(Transaction $transactions): self
+    public function addTransaction(Transaction $transaction): User
     {
-        $this->transactions->add($transactions);
+        $this->transactions->add($transaction);
+
         return $this;
     }
 }
