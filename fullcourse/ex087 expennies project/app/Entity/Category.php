@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\Entity;
 
@@ -14,13 +14,13 @@ use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\Table;
 
-#[Entity(), Table('categories')]
+#[Entity, Table('categories')]
 class Category
 {
-    #[Id, Column(options: ['unsigned' => true]), GeneratedValue()]
+    #[Id, Column(options: ['unsigned' => true]), GeneratedValue]
     private int $id;
 
-    #[Column()]
+    #[Column]
     private string $name;
 
     #[Column(name: 'created_at')]
@@ -50,9 +50,10 @@ class Category
         return $this->name;
     }
 
-    public function setName(string $name): self
+    public function setName(string $name): Category
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -61,9 +62,10 @@ class Category
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTime $createdAt): self
+    public function setCreatedAt(\DateTime $createdAt): Category
     {
         $this->createdAt = $createdAt;
+
         return $this;
     }
 
@@ -72,9 +74,10 @@ class Category
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(\DateTime $updatedAt): self
+    public function setUpdatedAt(\DateTime $updatedAt): Category
     {
         $this->updatedAt = $updatedAt;
+
         return $this;
     }
 
@@ -83,21 +86,24 @@ class Category
         return $this->user;
     }
 
-    public function setUser(User $user): self
+    public function setUser(User $user): Category
     {
         $user->addCategory($this);
+
         $this->user = $user;
+
         return $this;
     }
 
-    public function getTransactions(): Collection
+    public function getTransactions(): ArrayCollection|Collection
     {
         return $this->transactions;
     }
 
-    public function addTransaction(Transaction $transaction): self
+    public function addTransaction(Transaction $transaction): Category
     {
         $this->transactions->add($transaction);
+
         return $this;
     }
 }

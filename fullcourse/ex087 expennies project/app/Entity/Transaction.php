@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\Entity;
 
@@ -15,19 +15,19 @@ use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\Table;
 
-#[Entity(), Table('transactions')]
+#[Entity, Table('transactions')]
 class Transaction
 {
-    #[Id, Column(options: ['unsigned' => true]), GeneratedValue()]
+    #[Id, Column(options: ['unsigned' => true]), GeneratedValue]
     private int $id;
 
-    #[Column()]
+    #[Column]
     private string $description;
 
-    #[Column()]
+    #[Column]
     private \DateTime $date;
 
-    #[Column(name: 'amount', type: Types::DECIMAL, precision: 13, scale: 3)]
+    #[Column(type: Types::DECIMAL, precision: 13, scale: 3)]
     private float $amount;
 
     #[Column(name: 'created_at')]
@@ -60,9 +60,10 @@ class Transaction
         return $this->description;
     }
 
-    public function setDescription(string $description): self
+    public function setDescription(string $description): Transaction
     {
         $this->description = $description;
+
         return $this;
     }
 
@@ -71,9 +72,10 @@ class Transaction
         return $this->date;
     }
 
-    public function setDate(\DateTime $date): self
+    public function setDate(\DateTime $date): Transaction
     {
         $this->date = $date;
+
         return $this;
     }
 
@@ -82,9 +84,10 @@ class Transaction
         return $this->amount;
     }
 
-    public function setAmount(float $amount): self
+    public function setAmount(float $amount): Transaction
     {
         $this->amount = $amount;
+
         return $this;
     }
 
@@ -93,9 +96,10 @@ class Transaction
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTime $createdAt): self
+    public function setCreatedAt(\DateTime $createdAt): Transaction
     {
         $this->createdAt = $createdAt;
+
         return $this;
     }
 
@@ -104,9 +108,10 @@ class Transaction
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(\DateTime $updatedAt): self
+    public function setUpdatedAt(\DateTime $updatedAt): Transaction
     {
         $this->updatedAt = $updatedAt;
+
         return $this;
     }
 
@@ -115,10 +120,12 @@ class Transaction
         return $this->user;
     }
 
-    public function setUser(User $user): self
+    public function setUser(User $user): Transaction
     {
         $user->addTransaction($this);
+
         $this->user = $user;
+
         return $this;
     }
 
@@ -127,26 +134,24 @@ class Transaction
         return $this->category;
     }
 
-    public function setCategory(Category $category): self
+    public function setCategory(Category $category): Transaction
     {
         $category->addTransaction($this);
+
         $this->category = $category;
+
         return $this;
     }
 
-    public function getReceipts(): Collection
+    public function getReceipts(): ArrayCollection|Collection
     {
         return $this->receipts;
     }
 
-    public function addReceipt(Receipt $receipt): self
+    public function addReceipt(Receipt $receipt): Transaction
     {
         $this->receipts->add($receipt);
-        return $this;
-    }
 
-    public function getReceipt(): Collection
-    {
-        return $this->receipts;
+        return $this;
     }
 }
