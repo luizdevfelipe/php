@@ -4,26 +4,22 @@ declare(strict_types = 1);
 
 namespace App\Middleware;
 
+use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Slim\Views\Twig;
 
-class ValidationErrorsMiddleware implements MiddlewareInterface
+class GuestMiddleware implements MiddlewareInterface
 {
-    public function __construct(private readonly Twig $twig)
+    public function __construct(private readonly ResponseFactoryInterface $responseFactory)
     {
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        if (! empty($_SESSION['errors'])) {
-            $errors = $_SESSION['errors'];
-
-            $this->twig->getEnvironment()->addGlobal('errors', $errors);
-
-            unset($_SESSION['errors']);
+        if (! empty($_SESSION['user'])) {
+            return $this->responseFactory->createResponse(302)->withHeader('Location', '/');
         }
 
         return $handler->handle($request);

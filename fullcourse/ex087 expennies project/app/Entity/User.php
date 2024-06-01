@@ -1,10 +1,9 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\Entity;
 
-use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Event\LifecycleEventArgs;
@@ -58,12 +57,13 @@ class User
     }
 
     #[PrePersist, PreUpdate]
-    public function updateTimestamps(LifecycleEventArgs $args)
+    public function updateTimestamps(LifecycleEventArgs $args): void
     {
-        if (!isset($this->createdAt)) {
-            $this->createdAt = new DateTime();
+        if (! isset($this->createdAt)) {
+            $this->createdAt = new \DateTime();
         }
-        $this->updatedAt = new DateTime();
+
+        $this->updatedAt = new \DateTime();
     }
 
     public function getName(): string
@@ -107,23 +107,9 @@ class User
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTime $createdAt): User
-    {
-        $this->createdAt = $createdAt;
-
-        return $this;
-    }
-
     public function getUpdatedAt(): \DateTime
     {
         return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTime $updatedAt): User
-    {
-        $this->updatedAt = $updatedAt;
-
-        return $this;
     }
 
     public function getCategories(): ArrayCollection|Collection
