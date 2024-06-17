@@ -18,6 +18,7 @@ class ValidationExceptionMiddleware implements MiddlewareInterface
     public function __construct(
         private readonly ResponseFactoryInterface $responseFactory,
         private readonly SessionInterface $session,
+        private readonly RequestService $requestService
     ) {
     }
 
@@ -27,7 +28,7 @@ class ValidationExceptionMiddleware implements MiddlewareInterface
             return $handler->handle($request);
         } catch (ValidationException $e) {
             $response = $this->responseFactory->createResponse();
-            $referer  = $request->getServerParams()['HTTP_REFERER'];
+            $referer  = $this->requestService->getReferer($request);
             $oldData  = $request->getParsedBody();
 
             $sensitiveFields = ['password', 'confirmPassword'];
