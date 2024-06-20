@@ -29,7 +29,7 @@ class CsrfFieldsMiddleware implements MiddlewareInterface
 <input type="hidden" name="$csrfNameKey" value="$csrfName">
 <input type="hidden" name="$csrfValueKey" value="$csrfValue">
 CSRF_Fields;
-        
+
         $this->twig->getEnvironment()->addGlobal(
             'csrf',
             [
@@ -38,8 +38,8 @@ CSRF_Fields;
                     'value' => $csrfValueKey,
                 ],
                 'name'   => $csrfName,
-                'value'  => $csrfValue,   
-		'fields' => $fields,             
+                'value'  => $csrfValue,
+                'fields' => $fields,
             ]
         );
 
