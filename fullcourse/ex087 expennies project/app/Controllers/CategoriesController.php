@@ -41,4 +41,11 @@ class CategoriesController
 
         return $response->withHeader('Location', '/categories')->withStatus(302);
     }
+
+    public function delete(Request $request, Response $response, array $args): Response
+    {
+        $this->categoryService->delete((int) $args['id']);
+
+        return $response->withHeader('Location', '/categories')->withStatus(302);
+    }
 }
