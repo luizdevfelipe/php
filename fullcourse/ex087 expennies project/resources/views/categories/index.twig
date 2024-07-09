@@ -16,8 +16,7 @@
             </button>
         </div>
         <div class="modal fade" id="newCategoryModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog">
-                <form action="/categories" method="post">
+            <div class="modal-dialog">               
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title">New Category</h5>
@@ -36,13 +35,13 @@
                                 <i class="bi bi-x-circle me-1"></i>
                                 Close
                             </button>
-                            <button type="submit" class="btn btn-success">
+                            <button class="btn btn-success create-category-btn">
                                 <i class="bi bi-check-circle me-1"></i>
                                 Create
                             </button>
                         </div>
                     </div>
-                </form>
+                
             </div>
         </div>
         {% include 'categories/edit_category_modal.twig' %}
