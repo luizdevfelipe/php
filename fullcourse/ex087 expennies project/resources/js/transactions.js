@@ -1,29 +1,37 @@
-import { Modal } from "bootstrap"
+import { Modal }          from "bootstrap"
 import { get, post, del } from "./ajax"
-import DataTable from "datatables.net"
+import DataTable          from "datatables.net"
 
 window.addEventListener('DOMContentLoaded', function () {
+    const newTransactionModal  = new Modal(document.getElementById('newTransactionModal'))
     const editTransactionModal = new Modal(document.getElementById('editTransactionModal'))
-    const newTransactionModal = new Modal(document.getElementById('newTransactionModal'))
 
     const table = new DataTable('#transactionsTable', {
         serverSide: true,
         ajax: '/transactions/load',
         orderMulti: false,
         columns: [
-            { data: "description" },
-            { data: "amount" },
-            { data: "date" },
-            { data: "createdAt" },
-            { data: "updatedAt" },
+            {data: "description"},
+            {
+                data: row => new Intl.NumberFormat(
+                    'en-US',
+                    {
+                        style: 'currency',
+                        currency: 'USD',
+                        currencySign: 'accounting'
+                    }
+                ).format(row.amount)
+            },
+            {data: "category"},
+            {data: "date"},
             {
                 sortable: false,
                 data: row => `
                     <div class="d-flex flex-">
-                        <button type="submit" class="btn btn-outline-primary delete-transaction-btn" data-id="${row.id}">
+                        <button type="submit" class="btn btn-outline-primary delete-transaction-btn" data-id="${ row.id }">
                             <i class="bi bi-trash3-fill"></i>
                         </button>
-                        <button class="ms-2 btn btn-outline-primary edit-transaction-btn" data-id="${row.id}">
+                        <button class="ms-2 btn btn-outline-primary edit-transaction-btn" data-id="${ row.id }">
                             <i class="bi bi-pencil-fill"></i>
                         </button>
                     </div>
@@ -32,21 +40,21 @@ window.addEventListener('DOMContentLoaded', function () {
         ]
     });
 
-    document.querySelector('#transactionsTable').addEventListener('click', function (event) {        
-        const editBtn = event.target.closest('.edit-transaction-btn')
+    document.querySelector('#transactionsTable').addEventListener('click', function (event) {
+        const editBtn   = event.target.closest('.edit-transaction-btn')
         const deleteBtn = event.target.closest('.delete-transaction-btn')
 
         if (editBtn) {
             const transactionId = editBtn.getAttribute('data-id')
 
-            get(`/transactions/${transactionId}`)
+            get(`/transactions/${ transactionId }`)
                 .then(response => response.json())
                 .then(response => openEditTransactionModal(editTransactionModal, response))
         } else {
             const transactionId = deleteBtn.getAttribute('data-id')
 
             if (confirm('Are you sure you want to delete this transaction?')) {
-                del(`/transactions/${transactionId}`).then(response => {
+                del(`/transactions/${ transactionId }`).then(response => {
                     if (response.ok) {
                         table.draw()
                     }
@@ -56,37 +64,48 @@ window.addEventListener('DOMContentLoaded', function () {
     })
 
     document.querySelector('.create-transaction-btn').addEventListener('click', function (event) {
-        
-        post(`/transactions`, {
-            description: newTransactionModal._element.querySelector('input[name="description"]').value,
-            amount: newTransactionModal._element.querySelector('input[name="amount"]').value,
-            date: newTransactionModal._element.querySelector('input[name="date"]').value
-        }, newTransactionModal._element).then(response => {
-            if (response.ok) {
-                table.draw()
-                newTransactionModal.hide()
-            }
-        })
+        post(`/transactions`, getTransactionFormData(newTransactionModal), newTransactionModal._element)
+            .then(response => {
+                if (response.ok) {
+                    table.draw()
+                    newTransactionModal.hide()
+                }
+            })
     })
 
     document.querySelector('.save-transaction-btn').addEventListener('click', function (event) {
         const transactionId = event.currentTarget.getAttribute('data-id')
 
-        post(`/transactions/${transactionId}`, {
-            name: editTransactionModal._element.querySelector('input[name="name"]').value
-        }, editTransactionModal._element).then(response => {
-            if (response.ok) {
-                table.draw()
-                editTransactionModal.hide()
-            }
-        })
+        post(`/transactions/${ transactionId }`, getTransactionFormData(editTransactionModal), editTransactionModal._element)
+            .then(response => {
+                if (response.ok) {
+                    table.draw()
+                    editTransactionModal.hide()
+                }
+            })
     })
 })
 
-function openEditTransactionModal(modal, { id, name }) {
-    const nameInput = modal._element.querySelector('input[name="name"]')
+function getTransactionFormData(modal) {
+    let data     = {}
+    const fields = [
+        ...modal._element.getElementsByTagName('input'),
+        ...modal._element.getElementsByTagName('select')
+    ]
 
-    nameInput.value = name
+    fields.forEach(select => {
+        data[select.name] = select.value
+    })
+
+    return data
+}
+
+function openEditTransactionModal(modal, {id, ...data}) {
+    for (let name in data) {
+        const nameInput = modal._element.querySelector(`[name="${ name }"]`)
+
+        nameInput.value = data[name]
+    }
 
     modal._element.querySelector('.save-transaction-btn').setAttribute('data-id', id)
 

@@ -5,7 +5,7 @@
     {{ encore_entry_script_tags('transactions') }}
 {% endblock %}
 
-{% block title %}Categories{% endblock %}
+{% block title %}Transactions{% endblock %}
 
 {% block content %}
     <div class="transactions container content-body">
@@ -15,54 +15,16 @@
                 New Transaction
             </button>
         </div>
-        <div class="modal fade" id="newTransactionModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog">
-                <form action="/transactions" method="post">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">New Transaction</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            {{ csrf.fields | raw }}
-                            <div class="form-outline form-white mb-4">
-                                <input type="text" name="description" required
-                                       class="form-control form-control-lg m-1"
-                                       placeholder="Description" />
-                                       
-                                <input type="text" name="amount" required
-                                       class="form-control form-control-lg m-1"
-                                       placeholder="Amount" />
-
-                                <input type="date" name="date" required
-                                       class="form-control form-control-lg m-1"
-                                       placeholder="Transaction Date" />
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                <i class="bi bi-x-circle me-1"></i>
-                                Close
-                            </button>
-                            <button type="submit" class="btn btn-success">
-                                <i class="bi bi-check-circle me-1"></i>
-                                Create
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-        {% include 'transactions/edit_transaction_modal.twig' %}
+        {% include 'transactions/transaction_modal.twig' with {modal: {title: 'Create Transaction', id: 'newTransactionModal', isEdit: false}} %}
+        {% include 'transactions/transaction_modal.twig' with {modal: {title: 'Edit Transaction', id: 'editTransactionModal', isEdit: true}} %}
         <div>
             <table id="transactionsTable">
                 <thead>
                     <tr>
-                        <th>Description</th>                        
-                        <th>Amount</th>                        
-                        <th>Date</th>                        
-                        <th>Created At</th>
-                        <th>Updated At</th>
+                        <th>Description</th>
+                        <th>Amount</th>
+                        <th>Category</th>
+                        <th>Date</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
