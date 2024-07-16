@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 use App\Controllers\AuthController;
 use App\Controllers\CategoryController;
@@ -49,5 +49,6 @@ return function (App $app) {
             '/{transactionId:[0-9]+}/receipts/{id:[0-9]+}',
             [ReceiptController::class, 'delete']
         );
+        $transactions->post('/csv', [TransactionController::class, 'csvTransactions']);
     })->add(AuthMiddleware::class);
 };

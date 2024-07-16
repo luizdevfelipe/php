@@ -1,14 +1,16 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Controllers;
 
 use App\Contracts\RequestValidatorFactoryInterface;
 use App\DataObjects\TransactionData;
+use App\Entity\Category;
 use App\Entity\Receipt;
 use App\Entity\Transaction;
 use App\RequestValidators\TransactionRequestValidator;
+use App\RequestValidators\UploadCsvRequestValidator;
 use App\ResponseFormatter;
 use App\Services\CategoryService;
 use App\Services\RequestService;
@@ -69,7 +71,7 @@ class TransactionController
     {
         $transaction = $this->transactionService->getById((int) $args['id']);
 
-        if (! $transaction) {
+        if (!$transaction) {
             return $response->withStatus(404);
         }
 
@@ -84,6 +86,8 @@ class TransactionController
         return $this->responseFormatter->asJson($response, $data);
     }
 
+
+
     public function update(Request $request, Response $response, array $args): Response
     {
         $data = $this->requestValidatorFactory->make(TransactionRequestValidator::class)->validate(
@@ -92,7 +96,7 @@ class TransactionController
 
         $id = (int) $data['id'];
 
-        if (! $id || ! ($transaction = $this->transactionService->getById($id))) {
+        if (!$id || !($transaction = $this->transactionService->getById($id))) {
             return $response->withStatus(404);
         }
 
@@ -120,7 +124,7 @@ class TransactionController
                 'amount'      => $transaction->getAmount(),
                 'date'        => $transaction->getDate()->format('m/d/Y g:i A'),
                 'category'    => $transaction->getCategory()->getName(),
-                'receipts'    => $transaction->getReceipts()->map(fn(Receipt $receipt) => [
+                'receipts'    => $transaction->getReceipts()->map(fn (Receipt $receipt) => [
                     'name' => $receipt->getFilename(),
                     'id'   => $receipt->getId(),
                 ])->toArray(),
@@ -135,5 +139,13 @@ class TransactionController
             $params->draw,
             $totalTransactions
         );
+    }
+
+    public function csvTransactions(Request $request, Response $response)
+    {
+        $file = $this->requestValidatorFactory->make(UploadCsvRequestValidator::class)
+            ->validate($request->getUploadedFiles())['transactions'];
+            
+        return $response;
     }
 }

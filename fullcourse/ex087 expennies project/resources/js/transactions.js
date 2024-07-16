@@ -8,6 +8,7 @@ window.addEventListener('DOMContentLoaded', function () {
     const newTransactionModal  = new Modal(document.getElementById('newTransactionModal'))
     const editTransactionModal = new Modal(document.getElementById('editTransactionModal'))
     const uploadReceiptModal   = new Modal(document.getElementById('uploadReceiptModal'))
+    const uploadTransactionsModal   = new Modal(document.getElementById('uploadTransactionsModal'))
 
     const table = new DataTable('#transactionsTable', {
         serverSide: true,
@@ -162,6 +163,24 @@ window.addEventListener('DOMContentLoaded', function () {
                 if (response.ok) {
                     table.draw()
                     uploadReceiptModal.hide()
+                }
+            })
+    })
+
+    // enviar o arquivo CSV obtido pelo input:file
+    document.querySelector('.upload-transaction-btn').addEventListener('click', function (event) {
+        const formData      = new FormData()
+        const files         = uploadTransactionsModal._element.querySelector('input[type="file"]').files
+
+        for (let i = 0; i < files.length; i++) {
+            formData.append('transactions', files[i])
+        }
+
+        post(`/transactions/csv`, formData, uploadTransactionsModal._element)
+            .then(response => {
+                if (response.ok) {
+                    table.draw()
+                    uploadTransactionsModal.hide()
                 }
             })
     })
