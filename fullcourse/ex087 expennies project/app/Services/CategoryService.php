@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\Services;
 
@@ -36,8 +36,11 @@ class CategoryService
         $orderBy  = in_array($params->orderBy, ['name', 'createdAt', 'updatedAt']) ? $params->orderBy : 'updatedAt';
         $orderDir = strtolower($params->orderDir) === 'asc' ? 'asc' : 'desc';
 
-        if (!empty($params->searchTerm)) {
-            $query->where('c.name LIKE :name')->setParameter('name', '%' . addcslashes($params->searchTerm, '%_') . '%');
+        if (! empty($params->searchTerm)) {
+            $query->where('c.name LIKE :name')->setParameter(
+                'name',
+                '%' . addcslashes($params->searchTerm, '%_') . '%'
+            );
         }
 
         $query->orderBy('c.' . $orderBy, $orderDir);
@@ -58,12 +61,6 @@ class CategoryService
         return $this->entityManager->find(Category::class, $id);
     }
 
-    public function getByName(string $name): ?Category
-    {
-        return $this->entityManager->getRepository(Category::class)
-            ->findOneBy(['name' => $name]);
-    }
-
     public function update(Category $category, string $name): Category
     {
         $category->setName($name);
@@ -76,9 +73,15 @@ class CategoryService
 
     public function getCategoryNames(): array
     {
-        return $this->entityManager->getRepository(Category::class)->createQueryBuilder('c')
+        return $this->entityManager
+            ->getRepository(Category::class)->createQueryBuilder('c')
             ->select('c.id', 'c.name')
             ->getQuery()
             ->getArrayResult();
+    }
+
+    public function findByName(string $name): ?Category
+    {
+        return $this->entityManager->getRepository(Category::class)->findBy(['name' => $name])[0] ?? null;
     }
 }

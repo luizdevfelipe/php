@@ -72,10 +72,7 @@ class TransactionService
         $transaction->setDescription($transactionData->description);
         $transaction->setAmount($transactionData->amount);
         $transaction->setDate($transactionData->date);
-        
-        if($transactionData->category !== null) {
-            $transaction->setCategory($transactionData->category);
-        }
+        $transaction->setCategory($transactionData->category);
 
         $this->entityManager->persist($transaction);
         $this->entityManager->flush();

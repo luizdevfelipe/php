@@ -39,7 +39,7 @@ class Transaction
     private User $user;
 
     #[ManyToOne(inversedBy: 'transactions')]
-    private Category $category;
+    private ?Category $category;
 
     #[OneToMany(mappedBy: 'transaction', targetEntity: Receipt::class)]
     private Collection $receipts;
@@ -106,12 +106,12 @@ class Transaction
 
     public function getCategory(): ?Category
     {
-        return $this->category ?? null;
+        return $this->category;
     }
 
-    public function setCategory(Category $category): Transaction
+    public function setCategory(?Category $category): Transaction
     {
-        $category->addTransaction($this);
+        $category?->addTransaction($this);
 
         $this->category = $category;
 
