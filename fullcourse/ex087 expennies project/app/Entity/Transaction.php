@@ -104,9 +104,9 @@ class Transaction
         return $this;
     }
 
-    public function getCategory(): Category
+    public function getCategory(): ?Category
     {
-        return $this->category;
+        return $this->category ?? null;
     }
 
     public function setCategory(Category $category): Transaction

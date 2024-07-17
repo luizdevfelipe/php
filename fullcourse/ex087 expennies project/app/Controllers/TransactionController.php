@@ -123,7 +123,7 @@ class TransactionController
                 'description' => $transaction->getDescription(),
                 'amount'      => $transaction->getAmount(),
                 'date'        => $transaction->getDate()->format('m/d/Y g:i A'),
-                'category'    => $transaction->getCategory()->getName(),
+                'category'    => $transaction->getCategory()?->getName(),
                 'receipts'    => $transaction->getReceipts()->map(fn (Receipt $receipt) => [
                     'name' => $receipt->getFilename(),
                     'id'   => $receipt->getId(),
@@ -145,7 +145,31 @@ class TransactionController
     {
         $file = $this->requestValidatorFactory->make(UploadCsvRequestValidator::class)
             ->validate($request->getUploadedFiles())['transactions'];
-            
+
+        $open = fopen($file->getStream()->getMetadata('uri'), 'r');
+
+        $params = fgetcsv($open);
+
+        while (($line = fgetcsv($open)) !== false) {
+            $transactions[$params[0]][] = $line[0];
+            $transactions[$params[1]][] = $line[1];
+            $transactions[$params[2]][] = $line[2];
+            $transactions[$params[3]][] = $line[3];
+        }
+
+        fclose($open);
+
+        for ($i = 0; $i < count($transactions[$params[0]]); $i++) {
+            $category = $this->categoryService->getByName($transactions[$params[2]][$i]);
+
+            $this->transactionService->create(new TransactionData(
+                $transactions[$params[1]][$i],
+                (float) str_replace(['$', ','], '', $transactions[$params[3]][$i]),
+                new DateTime($transactions[$params[0]][$i]),
+                $category,
+            ), $request->getAttribute('user'));
+        }
+
         return $response;
     }
 }

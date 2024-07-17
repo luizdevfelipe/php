@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Services;
 
@@ -36,7 +36,7 @@ class CategoryService
         $orderBy  = in_array($params->orderBy, ['name', 'createdAt', 'updatedAt']) ? $params->orderBy : 'updatedAt';
         $orderDir = strtolower($params->orderDir) === 'asc' ? 'asc' : 'desc';
 
-        if (! empty($params->searchTerm)) {
+        if (!empty($params->searchTerm)) {
             $query->where('c.name LIKE :name')->setParameter('name', '%' . addcslashes($params->searchTerm, '%_') . '%');
         }
 
@@ -60,7 +60,8 @@ class CategoryService
 
     public function getByName(string $name): ?Category
     {
-        return $this->entityManager->getRepository(Category::class)->getName();
+        return $this->entityManager->getRepository(Category::class)
+            ->findOneBy(['name' => $name]);
     }
 
     public function update(Category $category, string $name): Category
