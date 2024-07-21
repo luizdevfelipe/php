@@ -37,6 +37,7 @@ use Symfony\WebpackEncoreBundle\Asset\TagRenderer;
 use Symfony\WebpackEncoreBundle\Twig\EntryFilesTwigExtension;
 use Twig\Extra\Intl\IntlExtension;
 use Clockwork\Clockwork;
+use Doctrine\ORM\EntityManagerInterface;
 
 use function DI\create;
 
@@ -58,7 +59,7 @@ return [
     Config::class                           => create(Config::class)->constructor(
         require CONFIG_PATH . '/app.php'
     ),
-    EntityManager::class                    => function (Config $config) {
+    EntityManagerInterface::class                    => function (Config $config) {
         $ormConfig = ORMSetup::createAttributeMetadataConfiguration(
             $config->get('doctrine.entity_dir'),
             $config->get('doctrine.dev_mode')
@@ -120,7 +121,7 @@ return [
 
         return new League\Flysystem\Filesystem($adapter);
     },
-    Clockwork::class => function(EntityManager $entityManager) {
+    Clockwork::class => function(EntityManagerInterface $entityManager) {
         $clockwork = new Clockwork();
 
         $clockwork->storage(new FileStorage(STORAGE_PATH . '/clockwork'));

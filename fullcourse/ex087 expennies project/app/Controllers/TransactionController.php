@@ -26,7 +26,7 @@ class TransactionController
         private readonly TransactionService $transactionService,
         private readonly ResponseFormatter $responseFormatter,
         private readonly RequestService $requestService,
-        private readonly CategoryService $categoryService
+        private readonly CategoryService $categoryService,
     ) {
     }
 
@@ -55,12 +55,16 @@ class TransactionController
             $request->getAttribute('user')
         );
 
+        $this->transactionService->flush();
+
         return $response;
     }
 
     public function delete(Request $request, Response $response, array $args): Response
     {
         $this->transactionService->delete((int) $args['id']);
+        
+        $this->transactionService->flush();
 
         return $response;
     }
@@ -105,6 +109,8 @@ class TransactionController
                 $data['category']
             )
         );
+
+        $this->transactionService->flush();
 
         return $response;
     }
