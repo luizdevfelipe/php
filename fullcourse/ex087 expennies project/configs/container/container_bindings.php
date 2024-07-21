@@ -20,6 +20,7 @@ use Clockwork\DataSource\DoctrineDataSource;
 use Clockwork\Storage\FileStorage;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\ORMSetup;
 use League\Flysystem\Filesystem;
 use Psr\Container\ContainerInterface;
@@ -37,7 +38,6 @@ use Symfony\WebpackEncoreBundle\Asset\TagRenderer;
 use Symfony\WebpackEncoreBundle\Twig\EntryFilesTwigExtension;
 use Twig\Extra\Intl\IntlExtension;
 use Clockwork\Clockwork;
-use Doctrine\ORM\EntityManagerInterface;
 
 use function DI\create;
 

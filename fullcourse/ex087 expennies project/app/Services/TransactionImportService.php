@@ -7,7 +7,6 @@ namespace App\Services;
 use App\DataObjects\TransactionData;
 use App\Entity\Transaction;
 use App\Entity\User;
-use Doctrine\ORM\EntityManagerInterface;
 
 class TransactionImportService
 {
