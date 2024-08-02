@@ -8,14 +8,14 @@ use App\Contracts\RequestValidatorInterface;
 use App\Exception\ValidationException;
 use Valitron\Validator;
 
-class UserLoginRequestValidator implements RequestValidatorInterface
+class UpdateProfileRequestValidator implements RequestValidatorInterface
 {
     public function validate(array $data): array
     {
         $v = new Validator($data);
 
-        $v->rule('required', ['email', 'password'])->message('Required field');
-        $v->rule('email', 'email');
+        $v->rule('required', 'name')->message('Required field');
+        $v->rule('integer', 'twoFactor')->message('Invalid Two-Factor indicator');
 
         if (! $v->validate()) {
             throw new ValidationException($v->errors());
