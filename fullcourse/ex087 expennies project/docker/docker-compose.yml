@@ -3,7 +3,7 @@ version: '3.8'
 services:
   app:
     build:
-      context: ""
+      context: "."
       dockerfile: Dockerfile
       args:
         USER_ID: '${WWWUSER:-1000}'
@@ -47,3 +47,10 @@ services:
     ports:
       - "8025:8025"
       - "1025:1025"
+  redis:
+    image: redis:latest
+    container_name: expennies-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass mypassword
