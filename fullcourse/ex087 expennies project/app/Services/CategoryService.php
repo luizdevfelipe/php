@@ -85,4 +85,20 @@ class CategoryService
 
         return $categoryMap;
     }
+
+    public function getTopSpendingCategories(int $limit): array
+    {
+        $query = $this->entityManager->createQuery(
+            'SELECT c.name, SUM(ABS(t.amount)) as total
+             FROM App\Entity\Transaction t
+             JOIN t.category c
+             WHERE t.amount < 0
+             GROUP BY c.id
+             ORDER BY total DESC'
+        );
+
+        $query->setMaxResults($limit);
+
+        return $query->getArrayResult();
+    }
 }
