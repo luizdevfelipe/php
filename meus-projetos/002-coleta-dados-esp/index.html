@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IoT ESP32 + PHP + MySQL – Unipinhal</title>
+
+  <!-- Bootstrap 5.3 CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <!-- Google Fonts: Segoe UI substitute + mono -->
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    /* ── Variáveis de cor – paleta Microsoft ── */
+    :root {
+      --ms-blue:       #0078d4;
+      --ms-blue-dark:  #005a9e;
+      --ms-blue-light: #deecf9;
+      --ms-teal:       #008272;
+      --ms-green:      #107c10;
+      --ms-orange:     #d83b01;
+      --ms-yellow:     #ffb900;
+      --ms-purple:     #5c2d91;
+      --ms-gray-10:    #faf9f8;
+      --ms-gray-20:    #f3f2f1;
+      --ms-gray-30:    #edebe9;
+      --ms-gray-60:    #8a8886;
+      --ms-gray-90:    #323130;
+      --ms-gray-100:   #201f1e;
+      --font-main: 'Nunito Sans', 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'Consolas', monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: var(--font-main);
+      background: var(--ms-gray-10);
+      color: var(--ms-gray-90);
+      margin: 0;
+    }
+
+    /* ── TOP BAR (faixa azul fina estilo Microsoft) ── */
+    .ms-topbar {
+      background: var(--ms-blue);
+      height: 4px;
+      width: 100%;
+    }
+
+    /* ── NAVBAR ── */
+    .ms-navbar {
+      background: #fff;
+      border-bottom: 1px solid var(--ms-gray-30);
+      padding: 0 2rem;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 1px 4px rgba(0,0,0,.08);
+    }
+    .ms-navbar .brand {
+      font-weight: 800;
+      font-size: 1rem;
+      color: var(--ms-blue);
+      text-decoration: none;
+      letter-spacing: -.3px;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+    .ms-navbar .brand i { font-size: 1.25rem; }
+    .ms-navbar nav a {
+      font-size: .85rem;
+      font-weight: 600;
+      color: var(--ms-gray-90);
+      text-decoration: none;
+      padding: .2rem .6rem;
+      border-radius: 4px;
+      transition: background .15s;
+    }
+    .ms-navbar nav a:hover { background: var(--ms-gray-20); color: var(--ms-blue); }
+    .ms-navbar .ms-btn-nav {
+      margin-left: auto;
+      background: var(--ms-blue);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: .35rem 1rem;
+      font-size: .82rem;
+      font-weight: 700;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+      transition: background .15s;
+    }
+    .ms-navbar .ms-btn-nav:hover { background: var(--ms-blue-dark); color: #fff; }
+
+    /* ── HERO ── */
+    .ms-hero {
+      background: linear-gradient(135deg, #0078d4 0%, #005a9e 55%, #003966 100%);
+      color: #fff;
+      padding: 5rem 2rem 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .ms-hero::before {
+      content: '';
+      position: absolute;
+      right: -80px; top: -80px;
+      width: 480px; height: 480px;
+      background: rgba(255,255,255,.04);
+      border-radius: 50%;
+    }
+    .ms-hero::after {
+      content: '';
+      position: absolute;
+      right: 120px; bottom: -120px;
+      width: 320px; height: 320px;
+      background: rgba(255,255,255,.03);
+      border-radius: 50%;
+    }
+    .ms-hero .badge-curso {
+      background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.3);
+      color: #fff;
+      font-size: .75rem;
+      font-weight: 700;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+      padding: .3rem .8rem;
+      border-radius: 20px;
+      display: inline-block;
+      margin-bottom: 1.2rem;
+    }
+    .ms-hero h1 {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 1rem;
+    }
+    .ms-hero h1 span { color: #61d2ff; }
+    .ms-hero p.lead {
+      font-size: 1rem;
+      font-weight: 300;
+      opacity: .9;
+      max-width: 560px;
+      line-height: 1.7;
+    }
+    .ms-hero .hero-meta {
+      margin-top: 2rem;
+      font-size: .82rem;
+      opacity: .75;
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .ms-hero .hero-meta span { display: flex; align-items: center; gap: .35rem; }
+
+    /* ── SEÇÃO GENÉRICA ── */
+    .ms-section { padding: 4rem 0; }
+    .ms-section-alt { background: #fff; }
+
+    .ms-section-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--ms-gray-100);
+      margin-bottom: .4rem;
+    }
+    .ms-section-title .accent {
+      display: inline-block;
+      width: 32px; height: 3px;
+      background: var(--ms-blue);
+      border-radius: 2px;
+      margin-right: .6rem;
+      vertical-align: middle;
+      margin-top: -3px;
+    }
+    .ms-section-sub {
+      color: var(--ms-gray-60);
+      font-size: .9rem;
+      margin-bottom: 2.5rem;
+    }
+
+    /* ── CARD PADRÃO ── */
+    .ms-card {
+      background: #fff;
+      border: 1px solid var(--ms-gray-30);
+      border-radius: 6px;
+      padding: 1.5rem;
+      height: 100%;
+      transition: box-shadow .2s, border-color .2s;
+    }
+    .ms-card:hover {
+      box-shadow: 0 4px 16px rgba(0,0,0,.1);
+      border-color: var(--ms-blue);
+    }
+    .ms-card .card-icon {
+      width: 44px; height: 44px;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem;
+      margin-bottom: 1rem;
+    }
+    .ms-card h5 { font-size: .95rem; font-weight: 700; margin-bottom: .5rem; }
+    .ms-card p  { font-size: .85rem; color: var(--ms-gray-60); line-height: 1.6; margin: 0; }
+
+    /* ── ARQUITETURA / FLUXO ── */
+    .flow-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: .5rem;
+    }
+    .flow-node {
+      background: #fff;
+      border: 1.5px solid var(--ms-gray-30);
+      border-radius: 8px;
+      padding: 1rem 1.2rem;
+      text-align: center;
+      min-width: 110px;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .flow-node:hover { border-color: var(--ms-blue); box-shadow: 0 2px 8px rgba(0,120,212,.15); }
+    .flow-node i { font-size: 1.6rem; display: block; margin-bottom: .4rem; }
+    .flow-node span { font-size: .75rem; font-weight: 700; color: var(--ms-gray-90); }
+    .flow-node small { display: block; font-size: .68rem; color: var(--ms-gray-60); margin-top: .15rem; }
+    .flow-arrow { color: var(--ms-blue); font-size: 1.4rem; line-height: 1; }
+
+    /* ── CODE BLOCK ── */
+    .ms-code {
+      background: var(--ms-gray-100);
+      border-radius: 6px;
+      padding: 1.2rem 1.4rem;
+      font-family: var(--font-mono);
+      font-size: .78rem;
+      color: #d4d4d4;
+      overflow-x: auto;
+      line-height: 1.7;
+      position: relative;
+    }
+    .ms-code .kw  { color: #569cd6; }
+    .ms-code .str { color: #ce9178; }
+    .ms-code .fn  { color: #dcdcaa; }
+    .ms-code .cmt { color: #6a9955; font-style: italic; }
+    .ms-code .num { color: #b5cea8; }
+    .ms-code .tag { color: #4ec9b0; }
+    .ms-code-label {
+      position: absolute; top: .5rem; right: .75rem;
+      font-size: .65rem; font-weight: 700;
+      color: var(--ms-gray-60); text-transform: uppercase; letter-spacing: .5px;
+    }
+
+    /* ── TABELA DE PARÂMETROS ── */
+    .ms-table thead th {
+      background: var(--ms-blue);
+      color: #fff;
+      font-size: .8rem;
+      font-weight: 700;
+      border: none;
+    }
+    .ms-table tbody td {
+      font-size: .82rem;
+      vertical-align: middle;
+      border-color: var(--ms-gray-30);
+    }
+    .ms-table tbody tr:hover { background: var(--ms-blue-light); }
+
+    /* ── STEPPER ── */
+    .ms-step {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.8rem;
+      align-items: flex-start;
+    }
+    .ms-step-num {
+      min-width: 32px; height: 32px;
+      background: var(--ms-blue);
+      color: #fff;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: .85rem;
+      flex-shrink: 0;
+    }
+    .ms-step-body h6 { font-weight: 700; margin-bottom: .25rem; font-size: .9rem; }
+    .ms-step-body p  { font-size: .83rem; color: var(--ms-gray-60); margin: 0; line-height: 1.6; }
+
+    /* ── CTA ── */
+    .ms-cta {
+      background: linear-gradient(135deg, #0078d4, #005a9e);
+      color: #fff;
+      border-radius: 8px;
+      padding: 3rem 2rem;
+      text-align: center;
+    }
+    .ms-cta h2 { font-weight: 800; font-size: 1.6rem; margin-bottom: .8rem; }
+    .ms-cta p  { opacity: .85; font-size: .92rem; margin-bottom: 1.8rem; }
+    .ms-btn-white {
+      background: #fff;
+      color: var(--ms-blue);
+      font-weight: 800;
+      font-size: .9rem;
+      padding: .6rem 1.8rem;
+      border-radius: 4px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      transition: opacity .15s;
+    }
+    .ms-btn-white:hover { opacity: .9; color: var(--ms-blue-dark); }
+
+    /* ── FOOTER ── */
+    .ms-footer {
+      background: var(--ms-gray-100);
+      color: var(--ms-gray-60);
+      padding: 2rem;
+      font-size: .78rem;
+      text-align: center;
+    }
+    .ms-footer a { color: var(--ms-gray-60); text-decoration: none; }
+    .ms-footer a:hover { color: #fff; }
+
+    /* ── UTILITIES ── */
+    .text-ms-blue { color: var(--ms-blue); }
+    .bg-ms-blue   { background: var(--ms-blue); }
+    .icon-blue    { background: var(--ms-blue-light); color: var(--ms-blue); }
+    .icon-teal    { background: #d2f0eb; color: var(--ms-teal); }
+    .icon-orange  { background: #fde7de; color: var(--ms-orange); }
+    .icon-green   { background: #dff6dd; color: var(--ms-green); }
+    .icon-purple  { background: #e8d9f5; color: var(--ms-purple); }
+    .icon-yellow  { background: #fff4ce; color: #835b00; }
+  </style>
+</head>
+<body>
+
+<!-- Faixa azul topo estilo Microsoft -->
+<div class="ms-topbar"></div>
+
+<!-- ══ NAVBAR ══════════════════════════════════════════════ -->
+<header class="ms-navbar">
+  <a href="index.html" class="brand">
+    <i class="bi bi-router-fill"></i> IoT ESP32
+  </a>
+  <nav class="d-none d-md-flex gap-1">
+    <a href="#arquitetura">Arquitetura</a>
+    <a href="#componentes">Componentes</a>
+    <a href="#configuracao">Configuração</a>
+    <a href="#url">URL GET</a>
+    <a href="#passos">Passo a Passo</a>
+  </nav>
+  <a href="lista_dados.php" class="ms-btn-nav">
+    <i class="bi bi-table"></i> Ver Dados
+  </a>
+</header>
+
+<!-- ══ HERO ════════════════════════════════════════════════ -->
+<section class="ms-hero">
+  <div class="container position-relative">
+    <div class="badge-curso">Unipinhal · Engenharia de Computação · Nível 7 · 2026</div>
+    <h1>IoT com <span>ESP32</span>, PHP<br>e MySQL</h1>
+    <p class="lead">
+      Aprenda como um microcontrolador ESP32 se conecta a uma rede Wi-Fi,
+      coleta dados de sensores e os envia automaticamente para um banco de dados
+      MySQL via PHP — utilizando o protocolo HTTP GET sobre uma rede local com XAMPP.
+    </p>
+    <div class="hero-meta">
+      <span><i class="bi bi-person-fill"></i> Prof. Jean A. A. Vieira</span>
+      <span><i class="bi bi-envelope-fill"></i> prof.jean.vieira@unipinhal.edu.br</span>
+      <span><i class="bi bi-book-fill"></i> Tópicos Especiais em Eng. de Computação I</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══ ARQUITETURA ════════════════════════════════════════ -->
+<section class="ms-section ms-section-alt" id="arquitetura">
+  <div class="container">
+    <div class="ms-section-title"><span class="accent"></span>Arquitetura do Sistema</div>
+    <p class="ms-section-sub">Veja como os componentes se comunicam do sensor até o banco de dados.</p>
+
+    <div class="flow-wrap">
+      <div class="flow-node">
+        <i class="bi bi-thermometer-half text-ms-blue"></i>
+        <span>Sensor</span>
+        <small>DHT11 / DHT22</small>
+      </div>
+      <div class="flow-arrow"><i class="bi bi-arrow-right"></i></div>
+      <div class="flow-node">
+        <i class="bi bi-cpu-fill text-ms-blue"></i>
+        <span>ESP32</span>
+        <small>Leitura + HTTP</small>
+      </div>
+      <div class="flow-arrow"><i class="bi bi-arrow-right"></i></div>
+      <div class="flow-node">
+        <i class="bi bi-wifi" style="color:var(--ms-teal)"></i>
+        <span>Wi-Fi</span>
+        <small>Rede local</small>
+      </div>
+      <div class="flow-arrow"><i class="bi bi-arrow-right"></i></div>
+      <div class="flow-node">
+        <i class="bi bi-globe" style="color:var(--ms-orange)"></i>
+        <span>Apache</span>
+        <small>XAMPP / PHP</small>
+      </div>
+      <div class="flow-arrow"><i class="bi bi-arrow-right"></i></div>
+      <div class="flow-node">
+        <i class="bi bi-filetype-php" style="color:var(--ms-purple)"></i>
+        <span>recebe_dados<br>.php</span>
+        <small>Valida + INSERT</small>
+      </div>
+      <div class="flow-arrow"><i class="bi bi-arrow-right"></i></div>
+      <div class="flow-node">
+        <i class="bi bi-database-fill" style="color:var(--ms-green)"></i>
+        <span>MySQL</span>
+        <small>banco_iot</small>
+      </div>
+      <div class="flow-arrow"><i class="bi bi-arrow-right"></i></div>
+      <div class="flow-node">
+        <i class="bi bi-table" style="color:var(--ms-blue)"></i>
+        <span>lista_dados<br>.php</span>
+        <small>SELECT + HTML</small>
+      </div>
+    </div>
+
+    <p class="text-center mt-4" style="font-size:.82rem; color:var(--ms-gray-60);">
+      <i class="bi bi-info-circle me-1"></i>
+      O ESP32 envia dados a cada 10 segundos. O servidor Apache processa o PHP e armazena no MySQL.
+      A página de listagem consulta e exibe os registros em tempo real ao ser carregada.
+    </p>
+  </div>
+</section>
+
+<!-- ══ COMPONENTES ════════════════════════════════════════ -->
+<section class="ms-section" id="componentes">
+  <div class="container">
+    <div class="ms-section-title"><span class="accent"></span>Componentes do Projeto</div>
+    <p class="ms-section-sub">Cada camada da solução e sua responsabilidade.</p>
+
+    <div class="row g-3">
+
+      <!-- ESP32 -->
+      <div class="col-12 col-sm-6 col-lg-4">
+        <div class="ms-card">
+          <div class="card-icon icon-blue"><i class="bi bi-cpu-fill"></i></div>
+          <h5>ESP32 – Microcontrolador</h5>
+          <p>
+            Microcontrolador de 32 bits com Wi-Fi e Bluetooth integrados.
+            Neste projeto, conecta-se à rede local, lê os sensores e envia os
+            dados ao servidor usando a biblioteca <code>HTTPClient.h</code>.
+            O código roda na Arduino IDE.
+          </p>
+        </div>
+      </div>
+
+      <!-- Wi-Fi -->
+      <div class="col-12 col-sm-6 col-lg-4">
+        <div class="ms-card">
+          <div class="card-icon icon-teal"><i class="bi bi-wifi"></i></div>
+          <h5>Wi-Fi – Comunicação</h5>
+          <p>
+            O ESP32 usa a biblioteca <code>WiFi.h</code> para se conectar a
+            um roteador padrão (2.4 GHz). Após conectar, obtém um endereço IP
+            e consegue alcançar o servidor XAMPP que estiver na mesma rede local.
+          </p>
+        </div>
+      </div>
+
+      <!-- HTTP GET -->
+      <div class="col-12 col-sm-6 col-lg-4">
+        <div class="ms-card">
+          <div class="card-icon icon-orange"><i class="bi bi-send-fill"></i></div>
+          <h5>HTTP GET – Protocolo</h5>
+          <p>
+            Os dados dos sensores são embutidos diretamente na URL como
+            parâmetros (query string). É o método mais simples de integração
+            entre hardware e web — sem necessidade de JSON ou autenticação
+            para fins didáticos.
+          </p>
+        </div>
+      </div>
+
+      <!-- XAMPP / Apache -->
+      <div class="col-12 col-sm-6 col-lg-4">
+        <div class="ms-card">
+          <div class="card-icon icon-yellow"><i class="bi bi-hdd-stack-fill"></i></div>
+          <h5>XAMPP – Servidor Local</h5>
+          <p>
+            Pacote que instala Apache, MySQL e PHP em um único clique.
+            O Apache serve os scripts PHP na porta 80. O MySQL armazena
+            os dados. O XAMPP simula um servidor web completo no próprio
+            computador do laboratório.
+          </p>
+        </div>
+      </div>
+
+      <!-- PHP -->
+      <div class="col-12 col-sm-6 col-lg-4">
+        <div class="ms-card">
+          <div class="card-icon icon-purple"><i class="bi bi-filetype-php"></i></div>
+          <h5>PHP – Back-end</h5>
+          <p>
+            Dois scripts PHP compõem o back-end:
+            <strong>recebe_dados.php</strong> valida os parâmetros GET
+            e executa o INSERT no banco; <strong>lista_dados.php</strong>
+            faz o SELECT e exibe os registros em uma tabela Bootstrap 5.
+            Padrão de código baseado no W3Schools.
+          </p>
+        </div>
+      </div>
+
+      <!-- MySQL -->
+      <div class="col-12 col-sm-6 col-lg-4">
+        <div class="ms-card">
+          <div class="card-icon icon-green"><i class="bi bi-database-fill"></i></div>
+          <h5>MySQL – Banco de Dados</h5>
+          <p>
+            Sistema gerenciador de banco de dados relacional (SGBD).
+            O banco <strong>banco_iot</strong> contém a tabela
+            <strong>tb_dados_recebidos</strong> com campos para
+            temperatura, umidade, local, mensagem, equipamento e
+            data/hora do registro.
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══ BANCO DE DADOS ════════════════════════════════════ -->
+<section class="ms-section ms-section-alt">
+  <div class="container">
+    <div class="ms-section-title"><span class="accent"></span>Estrutura do Banco de Dados</div>
+    <p class="ms-section-sub">Banco: <code>banco_iot</code> · Tabela: <code>tb_dados_recebidos</code></p>
+
+    <div class="row g-4 align-items-start">
+      <div class="col-12 col-lg-6">
+        <div class="ms-code" style="position:relative;">
+          <span class="ms-code-label">banco_iot.sql</span>
+<span class="kw">CREATE DATABASE IF NOT EXISTS</span> banco_iot<br>
+&nbsp;&nbsp;<span class="kw">CHARACTER SET</span> utf8mb4;<br><br>
+<span class="kw">CREATE TABLE IF NOT EXISTS</span> tb_dados_recebidos (<br>
+&nbsp;&nbsp;<span class="tag">id</span>          <span class="kw">INT</span>(<span class="num">11</span>) <span class="kw">NOT NULL AUTO_INCREMENT</span>,<br>
+&nbsp;&nbsp;<span class="tag">temperatura</span> <span class="kw">DECIMAL</span>(<span class="num">5,2</span>) <span class="kw">NOT NULL</span>,<br>
+&nbsp;&nbsp;<span class="tag">humidade</span>    <span class="kw">DECIMAL</span>(<span class="num">5,2</span>) <span class="kw">NOT NULL</span>,<br>
+&nbsp;&nbsp;<span class="tag">local</span>       <span class="kw">VARCHAR</span>(<span class="num">100</span>) <span class="kw">NOT NULL</span>,<br>
+&nbsp;&nbsp;<span class="tag">mensagem</span>    <span class="kw">VARCHAR</span>(<span class="num">255</span>) <span class="kw">NOT NULL</span>,<br>
+&nbsp;&nbsp;<span class="tag">equipamento</span> <span class="kw">VARCHAR</span>(<span class="num">50</span>) <span class="kw">NOT NULL</span>,<br>
+&nbsp;&nbsp;<span class="tag">dt_registro</span> <span class="kw">DATETIME</span> <span class="kw">NOT NULL</span>,<br>
+&nbsp;&nbsp;<span class="kw">PRIMARY KEY</span> (<span class="tag">id</span>)<br>
+) <span class="kw">ENGINE=InnoDB</span>;
+        </div>
+      </div>
+      <div class="col-12 col-lg-6">
+        <table class="table ms-table table-bordered rounded overflow-hidden">
+          <thead>
+            <tr>
+              <th>Campo</th>
+              <th>Tipo</th>
+              <th>Descrição</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><code>id</code></td><td>INT · PK · AUTO</td><td>Identificador único gerado automaticamente</td></tr>
+            <tr><td><code>temperatura</code></td><td>DECIMAL(5,2)</td><td>Temperatura em °C com 2 casas decimais</td></tr>
+            <tr><td><code>humidade</code></td><td>DECIMAL(5,2)</td><td>Umidade relativa em % com 2 casas decimais</td></tr>
+            <tr><td><code>local</code></td><td>VARCHAR(100)</td><td>Identificação do local do sensor</td></tr>
+            <tr><td><code>mensagem</code></td><td>VARCHAR(255)</td><td>Comentário livre enviado pelo ESP32</td></tr>
+            <tr><td><code>equipamento</code></td><td>VARCHAR(50)</td><td>ID único do dispositivo (ex.: ESP32-001)</td></tr>
+            <tr><td><code>dt_registro</code></td><td>DATETIME</td><td>Data e hora do recebimento no servidor</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ URL GET ════════════════════════════════════════════ -->
+<section class="ms-section" id="url">
+  <div class="container">
+    <div class="ms-section-title"><span class="accent"></span>Estrutura da URL HTTP GET</div>
+    <p class="ms-section-sub">O ESP32 monta e envia esta URL a cada 10 segundos.</p>
+
+    <div class="ms-code mb-4" style="position:relative;">
+      <span class="ms-code-label">URL montada pelo ESP32</span>
+<span class="str">http://</span><span class="num">192.168.33.12</span><span class="str">/AulaIoT/recebe_dados.php</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;?<span class="tag">temperatura</span>=<span class="num">31</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&amp;<span class="tag">humidade</span>=<span class="num">63</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&amp;<span class="tag">local</span>=<span class="str">unipinhal-bloco-G</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&amp;<span class="tag">mensagem</span>=<span class="str">Apenas%20um%20coment%C3%A1rio</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&amp;<span class="tag">equipamento</span>=<span class="str">ESP32-001</span>
+    </div>
+
+    <table class="table ms-table table-bordered">
+      <thead>
+        <tr><th>Parâmetro GET</th><th>Valor de Exemplo</th><th>Observação</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>temperatura</code></td><td>31</td><td>Substituir por leitura real do sensor</td></tr>
+        <tr><td><code>humidade</code></td><td>63</td><td>Substituir por leitura real do sensor</td></tr>
+        <tr><td><code>local</code></td><td>unipinhal-bloco-G</td><td>Identificação fixa do local de instalação</td></tr>
+        <tr><td><code>mensagem</code></td><td>Apenas%20um%20comentário</td><td>Espaços codificados como <code>%20</code> (URL encoding)</td></tr>
+        <tr><td><code>equipamento</code></td><td>ESP32-001</td><td>ID único — alterar para cada dispositivo</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ══ PHP INSERT ════════════════════════════════════════ -->
+<section class="ms-section ms-section-alt">
+  <div class="container">
+    <div class="ms-section-title"><span class="accent"></span>PHP – recebe_dados.php</div>
+    <p class="ms-section-sub">Recebe, valida e insere os dados no banco. Padrão W3Schools <code>php_mysql_insert.asp</code>.</p>
+
+    <div class="row g-4">
+      <div class="col-12 col-lg-7">
+        <div class="ms-code" style="position:relative;">
+          <span class="ms-code-label">recebe_dados.php</span>
+<span class="cmt">// Conexão com o banco (padrão W3Schools)</span><br>
+<span class="tag">$conn</span> = <span class="kw">new</span> <span class="fn">mysqli</span>(<span class="tag">$servername</span>, <span class="tag">$username</span>, <span class="tag">$password</span>, <span class="tag">$dbname</span>);<br><br>
+<span class="cmt">// Validação dos parâmetros GET</span><br>
+<span class="kw">if</span> (!<span class="fn">isset</span>(<span class="tag">$_GET</span>[<span class="str">"temperatura"</span>])) {<br>
+&nbsp;&nbsp;<span class="fn">die</span>(<span class="str">"ERRO: Parametros incompletos."</span>);<br>
+}<br><br>
+<span class="cmt">// Sanitização com htmlspecialchars()</span><br>
+<span class="tag">$temperatura</span> = <span class="fn">trim</span>(<span class="fn">htmlspecialchars</span>(<span class="tag">$_GET</span>[<span class="str">"temperatura"</span>]));<br><br>
+<span class="cmt">// INSERT no banco (padrão W3Schools)</span><br>
+<span class="tag">$sql</span> = <span class="str">"INSERT INTO tb_dados_recebidos<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(temperatura, humidade, local,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mensagem, equipamento, dt_registro)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALUES ('$temperatura', ..., NOW())"</span>;<br><br>
+<span class="kw">if</span> (<span class="tag">$conn</span>-><span class="fn">query</span>(<span class="tag">$sql</span>) === <span class="kw">TRUE</span>) {<br>
+&nbsp;&nbsp;<span class="kw">echo</span> <span class="str">"Registro inserido com sucesso!"</span>;<br>
+}<br><br>
+<span class="tag">$conn</span>-><span class="fn">close</span>();
+        </div>
+      </div>
+      <div class="col-12 col-lg-5 d-flex flex-column gap-3">
+        <div class="ms-card">
+          <div class="card-icon icon-orange"><i class="bi bi-shield-check"></i></div>
+          <h5>Validação com <code>isset()</code></h5>
+          <p>Verifica se todos os parâmetros obrigatórios chegaram na URL antes de tentar acessá-los.</p>
+        </div>
+        <div class="ms-card">
+          <div class="card-icon icon-purple"><i class="bi bi-funnel-fill"></i></div>
+          <h5>Sanitização com <code>htmlspecialchars()</code></h5>
+          <p>Converte caracteres especiais em entidades HTML, protegendo contra injeção de código (XSS).</p>
+        </div>
+        <div class="ms-card">
+          <div class="card-icon icon-green"><i class="bi bi-clock-fill"></i></div>
+          <h5><code>NOW()</code> no INSERT</h5>
+          <p>A data e hora do recebimento são gravadas automaticamente pelo MySQL, sem dependência do relógio do ESP32.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PHP SELECT ════════════════════════════════════════ -->
+<section class="ms-section">
+  <div class="container">
+    <div class="ms-section-title"><span class="accent"></span>PHP – lista_dados.php</div>
+    <p class="ms-section-sub">Consulta e exibe os registros. Padrão W3Schools <code>php_mysql_select.asp</code> com Bootstrap 5.</p>
+
+    <div class="ms-code mb-4" style="position:relative;">
+      <span class="ms-code-label">lista_dados.php</span>
+<span class="cmt">// SELECT com ORDER BY: mais recentes primeiro</span><br>
+<span class="tag">$sql</span>    = <span class="str">"SELECT * FROM tb_dados_recebidos ORDER BY id DESC"</span>;<br>
+<span class="tag">$result</span> = <span class="tag">$conn</span>-><span class="fn">query</span>(<span class="tag">$sql</span>);<br><br>
+<span class="kw">if</span> (<span class="tag">$result</span>-><span class="tag">num_rows</span> > <span class="num">0</span>) {<br>
+&nbsp;&nbsp;<span class="cmt">// Laço padrão W3Schools</span><br>
+&nbsp;&nbsp;<span class="kw">while</span>(<span class="tag">$row</span> = <span class="tag">$result</span>-><span class="fn">fetch_assoc</span>()) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">echo</span> <span class="str">"&lt;tr&gt;&lt;td&gt;"</span> . <span class="tag">$row</span>[<span class="str">"temperatura"</span>] . <span class="str">"&lt;/td&gt;...&lt;/tr&gt;"</span>;<br>
+&nbsp;&nbsp;}<br>
+}
+    </div>
+  </div>
+</section>
+
+<!-- ══ CONFIGURAÇÃO ════════════════════════════════════════ -->
+<section class="ms-section ms-section-alt" id="configuracao">
+  <div class="container">
+    <div class="ms-section-title"><span class="accent"></span>O Que Alterar no Código</div>
+    <p class="ms-section-sub">Dois pontos no firmware do ESP32 precisam ser ajustados para cada laboratório.</p>
+
+    <div class="row g-3">
+      <div class="col-12 col-md-6">
+        <div class="ms-card border-start border-4" style="border-color:var(--ms-blue)!important;">
+          <div class="card-icon icon-teal"><i class="bi bi-wifi"></i></div>
+          <h5>1. Nome e Senha da Rede Wi-Fi</h5>
+          <p>Localize esta linha no <code>setup()</code> e substitua pelos dados da rede do laboratório:</p>
+          <div class="ms-code mt-2" style="font-size:.73rem;">
+<span class="fn">WiFi</span>.<span class="fn">begin</span>(<span class="str">"Sua REDE WiFi aqui"</span>, <span class="str">"Senha do WiFi aqui"</span>);
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="ms-card border-start border-4" style="border-color:var(--ms-orange)!important;">
+          <div class="card-icon icon-orange"><i class="bi bi-pc-display"></i></div>
+          <h5>2. IP do Servidor XAMPP</h5>
+          <p>Descubra o IP da máquina com o XAMPP (<code>ipconfig</code> no Windows) e substitua:</p>
+          <div class="ms-code mt-2" style="font-size:.73rem;">
+<span class="tag">minhaURL</span>.<span class="fn">concat</span>(<span class="str">"192.168.33.12"</span>); <span class="cmt">// ← altere aqui</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PASSO A PASSO ════════════════════════════════════ -->
+<section class="ms-section" id="passos">
+  <div class="container">
+    <div class="ms-section-title"><span class="accent"></span>Passo a Passo para Executar</div>
+    <p class="ms-section-sub">Siga a ordem abaixo para colocar o projeto em funcionamento.</p>
+
+    <div class="row g-4">
+      <div class="col-12 col-lg-6">
+
+        <div class="ms-step">
+          <div class="ms-step-num">1</div>
+          <div class="ms-step-body">
+            <h6>Instalar e iniciar o XAMPP</h6>
+            <p>Baixe o XAMPP em <strong>apachefriends.org</strong>, instale e inicie os módulos <strong>Apache</strong> e <strong>MySQL</strong> no painel de controle.</p>
+          </div>
+        </div>
+
+        <div class="ms-step">
+          <div class="ms-step-num">2</div>
+          <div class="ms-step-body">
+            <h6>Criar o banco de dados</h6>
+            <p>Acesse <strong>localhost/phpmyadmin</strong>, clique em <em>SQL</em>, cole o conteúdo do arquivo <code>banco_iot.sql</code> e execute.</p>
+          </div>
+        </div>
+
+        <div class="ms-step">
+          <div class="ms-step-num">3</div>
+          <div class="ms-step-body">
+            <h6>Copiar os arquivos PHP</h6>
+            <p>Crie a pasta <code>htdocs/AulaIoT/</code> dentro do diretório do XAMPP e copie <code>recebe_dados.php</code>, <code>lista_dados.php</code> e <code>index.html</code> para ela.</p>
+          </div>
+        </div>
+
+      </div>
+      <div class="col-12 col-lg-6">
+
+        <div class="ms-step">
+          <div class="ms-step-num">4</div>
+          <div class="ms-step-body">
+            <h6>Descobrir o IP do servidor</h6>
+            <p>No Windows, abra o Prompt de Comando e execute <code>ipconfig</code>. Anote o <strong>Endereço IPv4</strong> da interface de rede Wi-Fi.</p>
+          </div>
+        </div>
+
+        <div class="ms-step">
+          <div class="ms-step-num">5</div>
+          <div class="ms-step-body">
+            <h6>Configurar e gravar o firmware</h6>
+            <p>Na Arduino IDE, altere o SSID, a senha e o IP do servidor no código <code>esp32_http_get.cpp</code>. Conecte o ESP32 via USB e grave o firmware.</p>
+          </div>
+        </div>
+
+        <div class="ms-step">
+          <div class="ms-step-num">6</div>
+          <div class="ms-step-body">
+            <h6>Monitorar e visualizar os dados</h6>
+            <p>Abra o <strong>Serial Monitor</strong> (115200 bps) para acompanhar os envios em tempo real. Acesse <code>lista_dados.php</code> no navegador para ver os registros na tabela.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ ARQUIVOS DO PROJETO ═══════════════════════════════ -->
+<section class="ms-section ms-section-alt">
+  <div class="container">
+    <div class="ms-section-title"><span class="accent"></span>Arquivos do Projeto</div>
+    <p class="ms-section-sub">Resumo de todos os arquivos entregues e suas funções.</p>
+
+    <table class="table ms-table table-bordered">
+      <thead>
+        <tr><th>Arquivo</th><th>Tipo</th><th>Função</th><th>Onde colocar</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>esp32_http_get.cpp</code></td>
+          <td><span class="badge bg-primary">Arduino C++</span></td>
+          <td>Firmware do ESP32 – conecta ao Wi-Fi e envia dados via HTTP GET</td>
+          <td>Arduino IDE → gravar no ESP32</td>
+        </tr>
+        <tr>
+          <td><code>recebe_dados.php</code></td>
+          <td><span class="badge bg-purple" style="background:var(--ms-purple)!important;">PHP</span></td>
+          <td>Recebe parâmetros GET, valida e insere no MySQL</td>
+          <td><code>htdocs/AulaIoT/</code></td>
+        </tr>
+        <tr>
+          <td><code>lista_dados.php</code></td>
+          <td><span class="badge bg-purple" style="background:var(--ms-purple)!important;">PHP + BS5</span></td>
+          <td>Faz SELECT e lista os registros em tabela Bootstrap 5</td>
+          <td><code>htdocs/AulaIoT/</code></td>
+        </tr>
+        <tr>
+          <td><code>index.html</code></td>
+          <td><span class="badge bg-info text-dark">HTML</span></td>
+          <td>Esta página — documentação e explicação completa do projeto</td>
+          <td><code>htdocs/AulaIoT/</code></td>
+        </tr>
+        <tr>
+          <td><code>banco_iot.sql</code></td>
+          <td><span class="badge bg-success">SQL</span></td>
+          <td>Script para criar o banco de dados e a tabela no MySQL</td>
+          <td>phpMyAdmin → aba SQL</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ══ CTA ═══════════════════════════════════════════════ -->
+<section class="ms-section">
+  <div class="container">
+    <div class="ms-cta">
+      <h2>Pronto para ver os dados?</h2>
+      <p>Após gravar o firmware no ESP32 e iniciar o XAMPP, acesse a tabela com os registros recebidos em tempo real.</p>
+      <a href="lista_dados.php" class="ms-btn-white">
+        <i class="bi bi-table"></i> Abrir Lista de Dados
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FOOTER ════════════════════════════════════════════ -->
+<footer class="ms-footer">
+  <div class="container">
+    <p class="mb-1">
+      <strong style="color:#fff;">IoT ESP32 + PHP + MySQL</strong> &nbsp;·&nbsp;
+      Prof. Jean A. A. Vieira &nbsp;·&nbsp;
+      <a href="mailto:prof.jean.vieira@unipinhal.edu.br">prof.jean.vieira@unipinhal.edu.br</a>
+    </p>
+    <p class="mb-0">
+      Tópicos Especiais em Engenharia de Computação I · Unipinhal · 2026
+    </p>
+  </div>
+</footer>
+
+<!-- Bootstrap 5 JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
